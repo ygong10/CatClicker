@@ -2,23 +2,31 @@
 <html>
 <head>
 	<link rel="stylesheet" type="text/css" href="styles/styles.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+	<script src="counter.js"></script>
 	<title>Cat Clicker</title>
 </head>
+
 <body>
 	<div id="info">
 		<div class="income_info"> 
 			<h2>Income rate:</h2>
 			<h2>Income:</h2>
+			<h2>Time Elapsed:</h2><h2 id="time">0</h2>
+			<button type="button" onclick="display()">ShowTime</button>
 		</div>
 
 		<div class="cat_info">
-			<h2>Current Number of Cats:</h2>
+		
+			<h2>Current Number of Cats:<h2 id="cat_number">0</h2></h2>
 			<h2>Highest Number of Cats:</h2>
 		</div> 
 	</div>
 
 	<div id="clicker">
-	<button type="button" onclick="myFunction()">Add Food</button>
+			<script src="counter.js">
+		</script>
+	<button type="button" onclick="increment()">Add Food</button>
 	</div>
 	
 	<script src="main.js"></script>
