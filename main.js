@@ -40,7 +40,7 @@ function update() {
 
 function render() {
 	ctx.clearRect(0, 0, width, height);
-	foodbowl.draw();
-	textrenderer.render();
+	foodbowl.draw(ctx);
+	textrenderer.render(ctx);
 }
 

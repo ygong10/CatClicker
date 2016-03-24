@@ -2,6 +2,7 @@ var
 
 textrenderer,
 foodbowl,
+counter = 1,
 
 constants = {
 	foodbowl: {width: 150, height: 150},
@@ -24,7 +25,7 @@ constants = {
 			u:		[5, 4],		v:		[5, 5],		w:		[5, 6],		x:		[5, 7],
 			y:		[5, 8],		z:		[6, 0],		space:	[0, 0],
 		},
-		animationLength: 60
+		animationLength: 50
 	}
 }
 
@@ -47,8 +48,7 @@ imageRepository = new function() {
 }
 ;
 
-function Drawable(ctx, x, y, width, height) {
-	this.ctx = ctx;
+function Drawable(x, y, width, height) {
 	this.x = x;
 	this.y = y;
 	this.width = width;
@@ -57,33 +57,33 @@ function Drawable(ctx, x, y, width, height) {
 
 
 
-function Sprite(ctx, img, x, y, width, height) {
-	Drawable.call(this, ctx, x, y, width, height);
+function Sprite(img, x, y, width, height) {
+	Drawable.call(this, x, y, width, height);
 	this.image = img;
 }
 Sprite.prototype = new Drawable();
-Sprite.prototype.draw = function() {
-	this.ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+Sprite.prototype.draw = function(ctx) {
+	ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
 }
 
 
 
-function ClippedSprite(ctx, img, sx, sy, swidth, sheight, x, y, width, height) {
-	Sprite.call(this, ctx, img, x, y, width, height);
+function ClippedSprite(img, sx, sy, swidth, sheight, x, y, width, height) {
+	Sprite.call(this, img, x, y, width, height);
 	this.sx = sx;
 	this.sy = sy;
 	this.swidth = swidth;
 	this.sheight = sheight;
 }
 ClippedSprite.prototype = new Sprite();
-ClippedSprite.prototype.draw = function() {
-	this.ctx.drawImage(this.image, this.sx, this.sy, this.swidth, this.sheight, this.x, this.y, this.width, this.height);
+ClippedSprite.prototype.draw = function(ctx) {
+	ctx.drawImage(this.image, this.sx, this.sy, this.swidth, this.sheight, this.x, this.y, this.width, this.height);
 }
 
 
 
-function TextSprite(ctx, text, x, y, width, height) {
-	Drawable.call(this, ctx, x, y, width, height);
+function TextSprite(text, x, y, width, height) {
+	Drawable.call(this, x, y, width, height);
 	this.text = text;
 	this.len = text.length;
 	this.animlen = constants.font.animationLength;
@@ -92,29 +92,29 @@ function TextSprite(ctx, text, x, y, width, height) {
 	// Width and height applies to each character
 	this.chars = text.split("");
 	this.sprites = [];
-	for (i = 0; i < text.length; i++) {
+	for (var i = 0; i < text.length; i++) {
 		var ind = posForLetter(this.chars[i]);
 		var swidth = constants.font.dimensions.swidth;
 		var sheight = constants.font.dimensions.sheight;
-		this.sprites[i] = new ClippedSprite(this.ctx, imageRepository.fontmap, ind[1] * swidth + 1 , ind[0] * sheight + 1, swidth - 1, sheight - 1,
+		this.sprites[i] = new ClippedSprite(imageRepository.fontmap, ind[1] * swidth + 1 , ind[0] * sheight + 1, swidth - 1, sheight - 1,
 			this.x + i * this.width, this.y, this.width, this.height);
 	}
 }
 TextSprite.prototype = new Drawable();
 TextSprite.prototype.moveBy = function(dx, dy) {
-	for (i = 0; i < this.len; i++) {
+	for (var i = 0; i < this.len; i++) {
 		this.sprites[i].x += dx;
 		this.sprites[i].y += dy;
 	}
 	this.x += dx;
 	this.y += dy;
 }
-TextSprite.prototype.draw = function() {
+TextSprite.prototype.draw = function(ctx) {
 	ctx.save();
 	var alpha = this.counter / this.animlen;
 	ctx.globalAlpha = alpha;
 	for (i = 0; i < this.len; i++) {
-		this.sprites[i].draw();
+		this.sprites[i].draw(ctx);
 	}
 	ctx.restore();
 }
@@ -127,23 +127,29 @@ TextSprite.prototype.animate = function() {
 }
 
 
+
 function TextPool() {
 	//var maxSize = maxSize;
 	var size = 0;
 	var pool = [];
 	
-	this.addText = function(text, x, y, width, height) {
-		var text = new TextSprite(ctx, text, x, y, width, height);
+	this.spawnText = function(text, x, y, width, height) {
+		var text = new TextSprite(text, x, y, width, height);
 		pool[size] = text;
 		size++;
 		console.log("size is " + size);
 	}
 	
-	this.render = function() {
+	this.render = function(ctx) {
 		for (var i = 0; i < size; i++) {
 			var sprite = pool[i];
-			sprite.draw();
-			sprite.animate();
+			if (sprite.animate()) {
+				pool.splice(i, 1);
+				size--;
+				i--;
+			} else {
+				sprite.draw(ctx);
+			}
 		}
 	}
 }
@@ -154,12 +160,28 @@ function TextPool() {
 
 
 function initImages() {
-	foodbowl = new Sprite(ctx, imageRepository.foodbowl, 0, 0, 150, 150);
+	foodbowl = new Sprite(imageRepository.foodbowl, 0, 0, 150, 150);
 	
 	textrenderer = new TextPool();
-	textrenderer.addText("+1", 200, 200, constants.font.displaydim.width, constants.font.displaydim.height);
-	textrenderer.addText("23", 250, 200, constants.font.displaydim.width, constants.font.displaydim.height);
+	textrenderer.spawnText("+1", 200, 200, constants.font.displaydim.width, constants.font.displaydim.height);
+	textrenderer.spawnText("23", 250, 200, constants.font.displaydim.width, constants.font.displaydim.height);
 }
+
+document.onclick = function(e) {
+	var mousePos = getMousePos(e);
+	//console.log("clicked at " + mousePos.x + ", " + mousePos.y);
+	textrenderer.spawnText("blade n shit " + counter, mousePos.x, mousePos.y, constants.font.displaydim.width, constants.font.displaydim.height);
+	counter++;
+}
+
+function getMousePos(e) {
+	var rect = canvas.getBoundingClientRect();
+	return {
+		x: e.clientX - rect.left,
+		y: e.clientY - rect.top
+	}
+}
+
 
 function posForLetter(letter) {
 	switch(letter) {
@@ -221,6 +243,8 @@ function posForLetter(letter) {
 			return constants.font.indices.y;
 		case 'z':
 			return constants.font.indices.z;
+		case '0':
+			return constants.font.indices.zero;
 		case '1':
 			return constants.font.indices.one;
 		case '2':
@@ -243,17 +267,5 @@ function posForLetter(letter) {
 }
 
 
-document.onclick = function(e) {
-	var mousePos = getMousePos(e);
-	//console.log("clicked at " + mousePos.x + ", " + mousePos.y);
-	textrenderer.addText("+1", mousePos.x, mousePos.y, constants.font.displaydim.width, constants.font.displaydim.height);
-}
 
-function getMousePos(e) {
-	var rect = canvas.getBoundingClientRect();
-	return {
-		x: e.clientX - rect.left,
-		y: e.clientY - rect.top
-	}
-}
 
