@@ -29,8 +29,11 @@ constants = {
 imageRepository = new function() {
 	this.foodbowl = new Image();
 	this.fontmap = new Image();
+	this.progressbar_b = new Image();
+	this.progressbar_i = new Image();
+	this.cat1 = new Image();
 	
-	var numImages = 2;
+	var numImages = 5;
 	var numLoaded = 0;
 	function imageLoaded() {
 		numLoaded++;
@@ -38,10 +41,13 @@ imageRepository = new function() {
 			window.init();
 		}
 	}
-	this.foodbowl.onload = this.fontmap.onload = imageLoaded;
+	this.progressbar_b.onload = this.progressbar_i.onload = this.cat1.onload = this.foodbowl.onload = this.fontmap.onload = imageLoaded;
 	
 	this.foodbowl.src = "imgs/foodbowl.png";
 	this.fontmap.src = "font/fontmap.png";
+	this.progressbar_b.src = "imgs/progressbar_background.png";
+	this.progressbar_i.src = "imgs/progressbar_bar.png";
+	this.cat1.src = "imgs/tubbs.png";
 }
 ;
 
@@ -51,6 +57,7 @@ function Drawable(x, y, width, height) {
 	this.width = width;
 	this.height = height;
 	
+	this.update = function() {}
 	this.draw = function(ctx) {}
 }
 
@@ -61,6 +68,7 @@ function Sprite(img, x, y, width, height) {
 	Drawable.call(this, x, y, width, height);
 	this.image = img;
 	
+	this.update = function() {}
 	this.draw = function(ctx) {
 		ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
 	}
@@ -78,6 +86,7 @@ function ClippedSprite(img, sx, sy, swidth, sheight, x, y, width, height) {
 	this.sheight = sheight;
 	
 	this.draw = function(ctx) {
+		console.log("swidth " + this.swidth);
 		ctx.drawImage(this.image, this.sx, this.sy, this.swidth, this.sheight, this.x, this.y, this.width, this.height);
 	}	
 }
@@ -137,7 +146,6 @@ TextSprite.prototype = new Drawable();
 
 
 function EffectsTextPool() {
-	//var maxSize = maxSize;
 	var size = 0;
 	var pool = [];
 	
@@ -145,7 +153,6 @@ function EffectsTextPool() {
 		var text = new TextSprite(text, x, y, width, height);
 		pool[size] = text;
 		size++;
-		//console.log("size is " + size);
 	}
 	
 	this.render = function(ctx) {
@@ -164,33 +171,14 @@ function EffectsTextPool() {
 
 
 
-function FoodBowl(x, y, width, height) {
-	Drawable.call(this, x, y, width, height);
-	this.foodcount = 0;
-	this.text = "food: ";
-	this.foodbowl = new Sprite(imageRepository.foodbowl, x, y, width, height);
-	this.textspawnpoint = {x: this.x + this.width / 2, y: this.y};
-	
-	this.draw = function(ctx) {
-		ctx.save();
-		ctx.font = "24px Comic Sans MS";
-		ctx.fillStyle = "brown";
-		ctx.textAlign = "center";
-		ctx.fillText(this.text + this.foodcount, this.x + this.width / 2, this.y - 30);
-		this.foodbowl.draw(ctx);
-		ctx.restore();
-	}
-	
-	this.incrementFoodCount = function(amount) {
-		this.foodcount += amount;
-		textrenderer.spawnText("+" + amount, this.textspawnpoint.x, this.textspawnpoint.y, constants.font.displaydim.width, constants.font.displaydim.height);
-	}
-	
-	this.setFoodCount = function(amount) {
-		this.foodcount = amount;
-	}
-}
-FoodBowl.prototype = new Drawable();
+
+
+
+
+
+
+
+
 
 function posForLetter(letter) {
 	switch(letter) {
