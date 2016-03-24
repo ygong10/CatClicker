@@ -1,4 +1,5 @@
 var oldTime = new Date();
+var counter = 0;
 var max = 0;
 
 function display(){
@@ -8,6 +9,10 @@ function display(){
 	document.getElementById('cat_number').innerHTML =  counter;
 	setMax(counter);
 	document.getElementById('highest_number').innerHTML = max;
+}
+
+function increment(){
+	counter++;
 }
 
 function setMax(counter){
