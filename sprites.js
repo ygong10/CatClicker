@@ -2,7 +2,7 @@ var
 
 textrenderer,
 foodbowl,
-counter = 1,
+counter = 0,
 
 constants = {
 	foodbowl: {width: 150, height: 150},
@@ -170,8 +170,9 @@ function initImages() {
 document.onclick = function(e) {
 	var mousePos = getMousePos(e);
 	//console.log("clicked at " + mousePos.x + ", " + mousePos.y);
-	textrenderer.spawnText("blade n shit " + counter, mousePos.x, mousePos.y, constants.font.displaydim.width, constants.font.displaydim.height);
 	counter++;
+	textrenderer.spawnText("blade n shit " + counter, mousePos.x, mousePos.y, constants.font.displaydim.width, constants.font.displaydim.height);
+	display();
 }
 
 function getMousePos(e) {
