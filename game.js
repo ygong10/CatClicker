@@ -20,6 +20,7 @@ document.onclick = function(e) {
 	var mousePos = getMousePos(e);
 	//textrenderer.spawnText("+1", mousePos.x, mousePos.y, constants.font.displaydim.width, constants.font.displaydim.height);
 	foodbowl.incrementFoodCount(counter);
+	display();
 }
 
 function getMousePos(e) {

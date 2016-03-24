@@ -1,5 +1,6 @@
 var
 
+
 constants = {
 	foodbowl: {width: 100, height: 100, x: 450, y: 300},
 	font: {
@@ -190,10 +191,6 @@ function FoodBowl(x, y, width, height) {
 	}
 }
 FoodBowl.prototype = new Drawable();
-
-
-
-
 
 function posForLetter(letter) {
 	switch(letter) {

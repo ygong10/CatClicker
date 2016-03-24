@@ -16,3 +16,39 @@
 	clear:both;
 
 }
+
+.start_menu {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    text-decoration: none;
+    text-align: center;
+
+}
+
+.start_menu_button {
+    background-color: #008FFF; /* Navy Blue */
+    border: none;
+    color: black;
+    padding: 10px;
+    text-align: center;
+    width: 300px;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 48px;
+    font-style: ;
+    margin-bottom: 20px;
+
+}
+
+body {
+    display: table;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+}
+
+.start {
+    display: table-cell;
+    vertical-align: middle;
+}
