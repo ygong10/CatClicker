@@ -19,7 +19,7 @@ function init() {
 	ctx = canvas.getContext("2d");
 	ctx.fillStyle = "#FFFFFF";
 	
-	initImages();
+	initGame();
 	
 	console.log("omg hi");
 	loop();

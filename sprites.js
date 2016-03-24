@@ -1,11 +1,7 @@
 var
 
-textrenderer,
-foodbowl,
-counter = 1,
-
 constants = {
-	foodbowl: {width: 150, height: 150},
+	foodbowl: {width: 100, height: 100, x: 450, y: 300},
 	font: {
 		displaydim: {width: 20, height: 25},
 		dimensions: {swidth: 18, sheight: 16},
@@ -53,18 +49,23 @@ function Drawable(x, y, width, height) {
 	this.y = y;
 	this.width = width;
 	this.height = height;
+	
+	this.draw = function(ctx) {}
 }
+
 
 
 
 function Sprite(img, x, y, width, height) {
 	Drawable.call(this, x, y, width, height);
 	this.image = img;
+	
+	this.draw = function(ctx) {
+		ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+	}
 }
 Sprite.prototype = new Drawable();
-Sprite.prototype.draw = function(ctx) {
-	ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
-}
+
 
 
 
@@ -74,11 +75,13 @@ function ClippedSprite(img, sx, sy, swidth, sheight, x, y, width, height) {
 	this.sy = sy;
 	this.swidth = swidth;
 	this.sheight = sheight;
+	
+	this.draw = function(ctx) {
+		ctx.drawImage(this.image, this.sx, this.sy, this.swidth, this.sheight, this.x, this.y, this.width, this.height);
+	}	
 }
 ClippedSprite.prototype = new Sprite();
-ClippedSprite.prototype.draw = function(ctx) {
-	ctx.drawImage(this.image, this.sx, this.sy, this.swidth, this.sheight, this.x, this.y, this.width, this.height);
-}
+
 
 
 
@@ -99,36 +102,40 @@ function TextSprite(text, x, y, width, height) {
 		this.sprites[i] = new ClippedSprite(imageRepository.fontmap, ind[1] * swidth + 1 , ind[0] * sheight + 1, swidth - 1, sheight - 1,
 			this.x + i * this.width, this.y, this.width, this.height);
 	}
+	
+	this.moveBy = function(dx, dy) {
+		for (var i = 0; i < this.len; i++) {
+			this.sprites[i].x += dx;
+			this.sprites[i].y += dy;
+		}
+		this.x += dx;
+		this.y += dy;
+	}
+	
+	this.draw = function(ctx) {
+		ctx.save();
+		var alpha = this.counter / this.animlen;
+		ctx.globalAlpha = alpha;
+		for (i = 0; i < this.len; i++) {
+			this.sprites[i].draw(ctx);
+		}
+		ctx.restore();
+	}
+	
+	this.update = function() {
+		if (this.counter == 0) {
+			return true;
+		}
+		this.moveBy(0, -1);
+		this.counter--;
+	}
 }
 TextSprite.prototype = new Drawable();
-TextSprite.prototype.moveBy = function(dx, dy) {
-	for (var i = 0; i < this.len; i++) {
-		this.sprites[i].x += dx;
-		this.sprites[i].y += dy;
-	}
-	this.x += dx;
-	this.y += dy;
-}
-TextSprite.prototype.draw = function(ctx) {
-	ctx.save();
-	var alpha = this.counter / this.animlen;
-	ctx.globalAlpha = alpha;
-	for (i = 0; i < this.len; i++) {
-		this.sprites[i].draw(ctx);
-	}
-	ctx.restore();
-}
-TextSprite.prototype.animate = function() {
-	if (this.counter == 0) {
-		return true;
-	}
-	this.moveBy(0, -1);
-	this.counter--;
-}
 
 
 
-function TextPool() {
+
+function EffectsTextPool() {
 	//var maxSize = maxSize;
 	var size = 0;
 	var pool = [];
@@ -137,13 +144,13 @@ function TextPool() {
 		var text = new TextSprite(text, x, y, width, height);
 		pool[size] = text;
 		size++;
-		console.log("size is " + size);
+		//console.log("size is " + size);
 	}
 	
 	this.render = function(ctx) {
 		for (var i = 0; i < size; i++) {
 			var sprite = pool[i];
-			if (sprite.animate()) {
+			if (sprite.update()) {
 				pool.splice(i, 1);
 				size--;
 				i--;
@@ -156,31 +163,36 @@ function TextPool() {
 
 
 
-
-
-
-function initImages() {
-	foodbowl = new Sprite(imageRepository.foodbowl, 0, 0, 150, 150);
+function FoodBowl(x, y, width, height) {
+	Drawable.call(this, x, y, width, height);
+	this.foodcount = 0;
+	this.text = "food: ";
+	this.foodbowl = new Sprite(imageRepository.foodbowl, x, y, width, height);
+	this.textspawnpoint = {x: this.x + this.width / 2, y: this.y};
 	
-	textrenderer = new TextPool();
-	textrenderer.spawnText("+1", 200, 200, constants.font.displaydim.width, constants.font.displaydim.height);
-	textrenderer.spawnText("23", 250, 200, constants.font.displaydim.width, constants.font.displaydim.height);
-}
-
-document.onclick = function(e) {
-	var mousePos = getMousePos(e);
-	//console.log("clicked at " + mousePos.x + ", " + mousePos.y);
-	textrenderer.spawnText("blade n shit " + counter, mousePos.x, mousePos.y, constants.font.displaydim.width, constants.font.displaydim.height);
-	counter++;
-}
-
-function getMousePos(e) {
-	var rect = canvas.getBoundingClientRect();
-	return {
-		x: e.clientX - rect.left,
-		y: e.clientY - rect.top
+	this.draw = function(ctx) {
+		ctx.save();
+		ctx.font = "24px Comic Sans MS";
+		ctx.fillStyle = "brown";
+		ctx.textAlign = "center";
+		ctx.fillText(this.text + this.foodcount, this.x + this.width / 2, this.y - 30);
+		this.foodbowl.draw(ctx);
+		ctx.restore();
+	}
+	
+	this.incrementFoodCount = function(amount) {
+		this.foodcount += amount;
+		textrenderer.spawnText("+" + amount, this.textspawnpoint.x, this.textspawnpoint.y, constants.font.displaydim.width, constants.font.displaydim.height);
+	}
+	
+	this.setFoodCount = function(amount) {
+		this.foodcount = amount;
 	}
 }
+FoodBowl.prototype = new Drawable();
+
+
+
 
 
 function posForLetter(letter) {
