@@ -35,12 +35,14 @@ function loop() {
 }
 
 function update() {
-	
+	cat1.update();
 }
 
 function render() {
 	ctx.clearRect(0, 0, width, height);
 	foodbowl.draw(ctx);
 	textrenderer.render(ctx);
+	cat1.draw(ctx);
+	//progressbar.draw(ctx);
 }
 
