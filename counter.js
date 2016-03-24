@@ -3,6 +3,7 @@ var oldTime = new Date();
 
 function increment(){
 	counter++;
+	document.getElementById('cat_number').innerHTML =  counter
 }
 
 function display(){
@@ -16,6 +17,8 @@ function display(){
 function startTimer(){
 	var oldTime = new Date();
 }
+
+
 
 
 
